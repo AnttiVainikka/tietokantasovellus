@@ -1,1 +1,1 @@
-web: gunicorn app:sovellus/app
+web: gunicorn app:app

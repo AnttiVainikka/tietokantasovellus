@@ -1,4 +1,4 @@
-/sovellus/__pycache__
-/sovellus/.env
-/sovellus/..env.swp
-/sovellus/venv
+__pycache__
+.env
+..env.swp
+venv
