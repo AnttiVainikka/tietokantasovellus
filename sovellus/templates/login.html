@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<title>Log In</title>
+{% if session.username %}
+<p>You are logged in as {{ session.username }}</p>
+<a href="/logout">Log out</a>
+{% else %}
+<form action="/log" method="POST">
+Username: <br>
+<input type="text" name="username">
+<br>
+Password: <br>
+<input type="password" name="password">
+<br><br>
+<input type="submit" value="Log In">
+</form>
+<br>
+<a href="/create">Create Account</a>
+<br>
+{% endif %}
