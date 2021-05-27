@@ -36,7 +36,7 @@ def logout():
 
 @app.route("/create")
 def create():
-    return render_template("create.html")
+    return render_template("create.html",error=False)
 
 @app.route("/create_account", methods=["POST"])
 def create_account():
@@ -46,9 +46,9 @@ def create_account():
     sql = "SELECT id FROM Users WHERE username=:username"
     user = db.session.execute(sql, {"username":username}).fetchone()
     if user != None:
-        return redirect("/create")
+        return render_template("create.html", error="Username taken")
     if password != password2:
-        return redirect("/create")
+        return render_template("create.html", error="Passwords not identical")
     password = generate_password_hash(password2)
     db.session.execute("INSERT INTO Users (username, moderator, password) VALUES (:username, 0, :password)", {"username":username,"password":password})
     db.session.commit()
@@ -67,6 +67,8 @@ def send():
     sql = "SELECT id FROM Users WHERE username=:username"
     user_id = db.session.execute(sql, {"username":username}).fetchone()[0]
     name = request.form["name"]
+    if not name:
+        return redirect("/write")
     type = request.form["type"]
     year = request.form["year"]
     language = request.form["language"]

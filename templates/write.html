@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <title>Write Review</title>
+{% if session.username %}
 <form action="/send" method="POST">
-Name of Work: <br>
-<input type="text" name="name">
+Name of Work: <br>  
+<input type="text" name="name" oninvalid="alert('You must give a name');" required>
 <br><br>
 Type:
 <p>
@@ -10,6 +11,7 @@ Type:
 <input type="radio" name="type" value="tv-series"> TV-series
 <input type="radio" name="type" value="book"> Book
 <input type="radio" name="type" value="comic"> Comic
+<input type="radio" name="type" value="comic"> Game
 <input type="radio" name="type" value="other"> Other
 <p>
 <p>
@@ -47,3 +49,8 @@ Score:
 <br><br>
 <input type="submit" value="Post Review">
 </form>
+{% else %}
+<p>
+You must be logged in to write reviews.    
+</p>
+{% endif %}

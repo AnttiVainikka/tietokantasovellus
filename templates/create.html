@@ -2,13 +2,16 @@
 <title>Create Account</title>
 <form action="/create_account" method="POST">
 Username: <br>
-<input type="text" name="username">
+<input type="text" name="username" oninvalid="alert('Username must be between 2-20 characters.');" pattern=".{2,20}" required>
 <br>
 Password: <br>
-<input type="password" name="password">
+<input type="password" name="password" oninvalid="alert('Password must be between 5-50 characters.');" pattern=".{5,50}" required>
 <br>
 Password again: <br>
 <input type="password" name="password2">
 <br><br>
 <input type="submit" value="Create Account">
 </form>
+{% if error != False %}
+{{ error }}
+{% endif %}
