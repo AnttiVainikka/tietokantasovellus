@@ -1,9 +1,16 @@
 <!DOCTYPE html>
 <title>Review Site</title>
 <h1>Welcome!</h1>
+{% if session.username %}
+<br>
+<a href="/logout">Log out</a>
+<br>
+<a href="/write">Write Review</a>
+<br>
+{% else %}
 <br>
 <a href="/login">Log in</a>
 <br>
+{% endif %}
 <a href="/search">Search</a>
-<br>
-<a href="/write">Write Review</a>
+

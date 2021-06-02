@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<title>Search</title>
+<form action="/result" method="POST">
+Name of Work: <br>
+<input type="text" name="name">
+<br><br>
+Type:
+<p>
+<input type="radio" name="type" value="Any" checked> Any
+<input type="radio" name="type" value="movie" > Movie
+<input type="radio" name="type" value="tv-series"> TV-series
+<input type="radio" name="type" value="book"> Book
+<input type="radio" name="type" value="comic"> Comic
+<input type="radio" name="type" value="comic"> Game
+<input type="radio" name="type" value="other"> Other
+</p>
+<p>
+Publishing Year: <br>
+<select name="year">
+<option value="0"> Earlier
+{% for i in range(1800,2022) %}
+<option value="{{ i }}"> {{ i }}
+{% endfor %}
+<option value="Any" selected> Any
+</select>
+<br>
+Language: <br>
+<select name="language">
+<option value="Any" selected> Any
+<option value="English"> English
+<option value="Spanish"> Spanish
+<option value="Chinese"> Chinese
+<option value="Japanese"> Japanese
+<option value="Finnish"> Finnish
+<option value="Swedish"> Swedish
+</select>
+</p>
+<br>
+<input type="submit" value="Search">
+</form>
+<br>
+<br>
+<a href="/">Return to front page</a>

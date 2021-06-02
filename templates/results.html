@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<title>Search Results</title>
+<h1>Your results:</h1> <br>
+{% for result in results %}
+<p>
+<h3>{{ result[1] }}</h3>
+Type: {{ result[2] }}<br> Publishing year: {{ result[3] }}<br> Language: {{ result[4] }}
+</p>
+{% endfor %}
+<br>
+<a href="/">Return to front page</a>

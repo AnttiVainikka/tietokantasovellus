@@ -3,7 +3,7 @@
 {% if session.username %}
 <form action="/send" method="POST">
 Name of Work: <br>  
-<input type="text" name="name" oninvalid="alert('You must give a name');" required>
+<input type="text" name="name" oninvalid="alert('Name must be between 1-50 characters');" pattern=".{1,50}" required>
 <br><br>
 Type:
 <p>
@@ -13,7 +13,7 @@ Type:
 <input type="radio" name="type" value="comic"> Comic
 <input type="radio" name="type" value="comic"> Game
 <input type="radio" name="type" value="other"> Other
-<p>
+</p>
 <p>
 Publishing Year: <br>
 <select name="year">
@@ -37,7 +37,7 @@ Language: <br>
 <br>
 Review: <br>
 <textarea name="review" rows="25" cols="50"></textarea>
-<p>
+</p>
 <br>
 Score:
 <select name="score">
@@ -54,3 +54,6 @@ Score:
 You must be logged in to write reviews.    
 </p>
 {% endif %}
+<br>
+<br>
+<a href="/">Return to front page</a>

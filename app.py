@@ -3,6 +3,7 @@ from flask import redirect, render_template, request, session
 from flask_sqlalchemy import SQLAlchemy
 from os import getenv
 from werkzeug.security import check_password_hash, generate_password_hash
+from copy import copy
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = getenv("DATABASE_URL")
@@ -69,13 +70,14 @@ def send():
     name = request.form["name"]
     if not name:
         return redirect("/write")
+    name = name.strip()
     type = request.form["type"]
     year = request.form["year"]
     language = request.form["language"]
     review = request.form["review"]
     score = request.form["score"]
-    sql = "SELECT id FROM Works WHERE name=:name AND type=:type"
-    id = db.session.execute(sql, {"name":name,"type":type}).fetchone()
+    sql = "SELECT id FROM Works WHERE LOWER(name)=:name AND type=:type"
+    id = db.session.execute(sql, {"name":name.lower(), "type":type}).fetchone()
     if id == None:
         sql = "INSERT INTO Works (name, type, year, language) VALUES (:name,:type,:year,:language) RETURNING id"
         id = db.session.execute(sql, {"name":name,"type":type,"year":year,"language":language}).fetchone()
@@ -84,3 +86,40 @@ def send():
     db.session.commit()
     return redirect("/")
 
+@app.route("/search")
+def search():
+    return render_template("search.html")
+
+
+@app.route("/result", methods=["POST"])
+def result():
+    name = request.form["name"]
+    if not name:
+        results = db.session.execute("SELECT * FROM Works").fetchall()
+    else:
+        name = name.strip()
+        sql = "SELECT * FROM Works WHERE LOWER(name) LIKE :name"
+        results = db.session.execute(sql, {"name":"%"+name.lower()+"%"}).fetchall()
+    if results == None:
+        return redirect("/")
+    type = request.form["type"]
+    year = request.form["year"]
+    language = request.form["language"]
+    final_results = copy(results)
+    for result in results:
+        if type != "Any":
+            if result[2] != type:
+                final_results.remove(result)
+                continue
+        if year != "Any":
+            if result[3] != int(year):
+                final_results.remove(result)
+                continue
+        if language != "Any":
+            if result[4] != language:
+                final_results.remove(result)
+    final_results.sort(key=name_order)
+    return render_template("results.html", results = final_results)
+
+def name_order(work):
+    return work[1].lower()
