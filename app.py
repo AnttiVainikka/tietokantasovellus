@@ -123,3 +123,18 @@ def result():
 
 def name_order(work):
     return work[1].lower()
+
+@app.route("/work/<name>")
+def work(name):
+    sql = "SELECT * FROM Works WHERE name=:name"
+    work = db.session.execute(sql, {"name":name}).fetchone()
+    sql = "SELECT Users.username, Reviews.score, Reviews.review FROM Reviews, Users WHERE Reviews.work_id=:id AND Users.id = Reviews.user_id"
+    reviews = db.session.execute(sql, {"id":work[0]}).fetchall()
+    if reviews:
+        sql = "SELECT AVG(score) FROM Reviews WHERE work_id=:id"
+        score = round(db.session.execute(sql, {"id":work[0]}).fetchone()[0],1)
+        if int(score) == score:
+            score = int(score)
+    else:
+        score = "?"
+    return render_template("work.html", work = work, reviews = reviews, score = score)

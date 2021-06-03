@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<title>{{ work[1] }}</title>
+<h1>{{ work[1] }}</h1>
+<p>
+Type: {{ work[2] }}
+<br>
+Publishing year: {{ work[3] }}
+<br>
+Language: {{ work[4] }}
+</p>
+<h3>Average score:</h3>
+<h2>{{ score }}/10</h2>
+<br>
+<h2>Reviews:</h2>
+{% for review in reviews %}
+<p>
+User: {{ review[0] }} <br>
+Score: {{ review[1] }} <br>
+Review:<br> {{ review[2] }} <br>
+</p>
+{% endfor %}
+<a href="/">Return to front page</a>
