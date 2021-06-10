@@ -23,7 +23,7 @@ div.reply {
 <input type="hidden" name="id" value="{{ id }}">
 <input type="hidden" name="comment_id" value="{{ comment_id }}">
 Post a public reply <br>
-<textarea name="reply" rows="6" cols="36"></textarea><br>
+<textarea maxlength="3000" name="reply" rows="6" cols="36"></textarea><br>
 <input type="submit" value="Reply"><br><br>
 {% endif %}
 {% for reply in replies %}

@@ -32,7 +32,7 @@ Review:
 <form action="/comment" method="POST">
 <input type="hidden" name="id" value="{{ id }}">
 Post a public comment <br>
-<textarea name="comment" rows="6" cols="36"></textarea><br>
+<textarea maxlength="3000" name="comment" rows="6" cols="36"></textarea><br>
 <input type="submit" value="Comment"><br><br>
 {% endif %}
 <br>
