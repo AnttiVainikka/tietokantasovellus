@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<title>Comment replies</title>
+<head>
+<style>
+div.comment {
+    border-style: solid;
+    max-width: 300px;
+    white-space: pre-wrap
+}
+div.reply {
+    border-style: solid;
+    max-width: 300px;
+    white-space: pre-wrap;
+    margin-left: 30px;
+}
+</style>
+</head>
+{{ comment[0] }}
+<div class="comment">
+{{ comment[1] }}</div><br>
+{% if session.username %}
+<form action="/reply" method="POST">
+<input type="hidden" name="id" value="{{ id }}">
+<input type="hidden" name="comment_id" value="{{ comment_id }}">
+Post a public reply <br>
+<textarea name="reply" rows="6" cols="36"></textarea><br>
+<input type="submit" value="Reply"><br><br>
+{% endif %}
+{% for reply in replies %}
+{{ reply[0] }}
+<div class="reply">
+{{ reply[1] }}</div><br>
+{% endfor %}
+<br><br>
+<a href="/">Return to front page</a>

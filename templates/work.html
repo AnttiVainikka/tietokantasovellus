@@ -1,13 +1,5 @@
 <!DOCTYPE html>
 <title>{{ work[1] }}</title>
-<head>
-<style>
-div.review {
-    max-width: 500px;
-    white-space: pre-wrap
-}
-</style>
-</head>
 <h1>{{ work[1] }}</h1>
 <p>
 Type: {{ work[2] }}
@@ -24,10 +16,8 @@ Language: {{ work[4] }}
 <p>
 User: {{ review[0] }} <br>
 Score: {{ review[1] }} <br>
+<a href="/review/{{ review[2] }}">Read full review</a>
 </p>
-Review:
-<div class="review">
-{{ review[2] }}</div>
 {% endfor %}
-<br>
+<br><br>
 <a href="/">Return to front page</a>

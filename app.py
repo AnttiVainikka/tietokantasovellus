@@ -128,7 +128,7 @@ def name_order(work):
 def work(name):
     sql = "SELECT * FROM Works WHERE name=:name"
     work = db.session.execute(sql, {"name":name}).fetchone()
-    sql = "SELECT Users.username, Reviews.score, Reviews.review FROM Reviews, Users WHERE Reviews.work_id=:id AND Users.id = Reviews.user_id"
+    sql = "SELECT Users.username, Reviews.score, Reviews.id FROM Reviews, Users WHERE Reviews.work_id=:id AND Users.id = Reviews.user_id"
     reviews = db.session.execute(sql, {"id":work[0]}).fetchall()
     if reviews:
         sql = "SELECT AVG(score) FROM Reviews WHERE work_id=:id"
@@ -138,3 +138,52 @@ def work(name):
     else:
         score = "?"
     return render_template("work.html", work = work, reviews = reviews, score = score)
+
+@app.route("/review/<id>")
+def review(id):
+    sql = "SELECT Works.name, Users.username, Reviews.score, Reviews.review FROM Reviews, Users, Works WHERE Reviews.id=:id AND Reviews.work_id = Works.id AND Reviews.user_id = Users.id"
+    review = db.session.execute(sql, {"id":id}).fetchone()
+    sql = "SELECT Users.username, Comments.writing, Comments.id FROM Users, Comments WHERE Comments.review_id=:id AND Comments.user_id = Users.id"
+    comments = db.session.execute(sql, {"id":id}).fetchall()
+    final_comments = []
+    for comment in comments:
+        sql = "SELECT Users.username, Replies.writing FROM Users, Replies WHERE Replies.comment_id=:id AND Replies.user_id = Users.id"
+        replies = db.session.execute(sql, {"id":comment[2]}).fetchall()
+        final_comments.append([comment[0],comment[1],comment[2],replies])
+    return render_template("review.html", review = review, comments = final_comments, id = id)
+
+@app.route("/review/<id>/<comment_id>")
+def replies(id,comment_id):
+    sql = "SELECT Users.username, Comments.writing FROM Users, Comments WHERE Comments.id=:id AND Comments.user_id = Users.id"
+    comment = db.session.execute(sql, {"id":comment_id}).fetchone()
+    sql = "SELECT Users.username, Replies.writing FROM Users, Replies WHERE Replies.comment_id=:id AND Replies.user_id = Users.id"
+    replies = db.session.execute(sql, {"id":comment_id}).fetchall()
+    return render_template("reply.html", id = id, comment_id = comment_id, comment = comment, replies = replies)
+
+
+@app.route("/comment", methods=["POST"])
+def comment():
+    review_id = request.form["id"]
+    username = session["username"]
+    sql = "SELECT id FROM Users WHERE username=:username"
+    user_id = db.session.execute(sql, {"username":username}).fetchone()[0]
+    writing = request.form["comment"]
+    sql = "INSERT INTO Comments (review_id, user_id, writing) VALUES (:review_id,:user_id,:writing)"
+    db.session.execute(sql, {"review_id":review_id,"user_id":user_id,"writing":writing})
+    db.session.commit()
+    page = "/review/" + str(review_id)
+    return redirect(page)
+
+@app.route("/reply", methods=["POST"])
+def reply():
+    review_id = request.form["id"]
+    comment_id = request.form["comment_id"]
+    username = session["username"]
+    sql = "SELECT id FROM Users WHERE username=:username"
+    user_id = db.session.execute(sql, {"username":username}).fetchone()[0]
+    writing = request.form["reply"]
+    sql = "INSERT INTO Replies (comment_id, user_id, writing) VALUES (:comment_id,:user_id,:writing)"
+    db.session.execute(sql, {"comment_id":comment_id,"user_id":user_id,"writing":writing})
+    db.session.commit()
+    page = "/review/" + str(review_id) + "/" + str(comment_id)
+    return redirect(page)
