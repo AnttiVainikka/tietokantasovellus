@@ -3,20 +3,18 @@
 ## About
 A website where users can post and read reviews of movies, tv-shows, books, comics and such.
 
-## Current functionality
-A visitor can create an account, log in, and write reviews once logged in. Searching does not work yet.
-
-## Ideas for future functionality
-A user can search media by their name, type or publishing year. The user can also search names by keywords instead of giving full names. Reviews can be given comments, likes, and dislikes. Comments can also be given comments and likes. The site displays the average score given to a piece of work. An option to report works, reviews, and comments. Moderators can go through these reports and take appropriate action.
+## Functionality
+A visitor can search works, create an account, log in and read reviews, comments and replies. A user can search works, log out and write, read and edit/delete their own reviews, comments and replies. Additionally everyone can report works, reviews, comments and replies. A moderator can delete any account, work, review, comment or reply and also go through reports and take appropriate action. Currently moderators cannot delete reports but deleting something that has been reported will delete all reports conserning it. Also users cannot be reported yet.
 
 ## User roles
-### Moderator
-Can read and post reviews, give comments and terminate accounts. They can also delete comments, reviews, and works from the database and edit
-existing works.
-### User
-Can read and post reviews, give comments, and delete their own reviews and comments.
 ### Visitor
-Can read reviews, create an account and log in.
+Can search works, read everything, report everything, create an account and log in.
+### User
+Can search works, read and write everything, report everything, log out and edit/delete their own reviews, comments and replies.
+### Moderator
+Can search works, read, write and delete everything, report everything, log out and edit works and their own reviews, comments and replies. Can see a link to all reports on the front page.
 
-## Heroku
+## Testing the app on Heroku
 [Link to the app on Heroku](https://tietokantasovellus-review-site.herokuapp.com/)
+
+In order to test being a moderator you can use the account "Modi" (password: "moderaattori"). If you do, I ask you to not delete anything you didn't create.
