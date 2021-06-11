@@ -43,6 +43,9 @@ Post a public comment <br>
 <div class="comment">
 {{ comment[1] }}</div><br>
 <a href="/review/{{ id }}/{{ comment[2] }}">Read replies</a>
+{% if comment[4] %}
+<br><a href="/edit/comment/{{ comment[2] }}">Edit comment</a>
+{% endif %}
 <br><a href="/report/comment/{{ comment[2] }}">Report comment</a><br><br>
 {% endfor %}
 <br><br>

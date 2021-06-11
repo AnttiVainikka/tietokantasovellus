@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<title>Edit Reply</title>
+<title>Edit Comment</title>
 <head>
 <style>
 div.comment {
@@ -10,21 +10,21 @@ div.comment {
 </style>
 </head>
 {% if moderator %}
-<form action="/edit_reply" method="POST">
-User: {{ reply[0] }}<br>
-Reply:<br>
+<form action="/edit_comment" method="POST">
+User: {{ comment[0] }}<br>
+Comment:<br>
 <div class="comment">
-{{ reply[1] }}</div><br>
-Original comment:<br>
+{{ comment[1] }}</div><br>
+Original review:<br>
 <div class="comment">
-{{ reply[2] }}</div><br><br>
-Delete reply: <br>
+{{ comment[2] }}</div><br><br>
+Delete comment: <br>
 <input type="radio" name="delete" value="0" checked> No
 <input type="radio" name="delete" value="1"> Yes
-<input type="hidden" name="reply_id" value="{{ id }}">
+<input type="hidden" name="comment_id" value="{{ id }}">
 <br><br>
 {% if writer %}
-Edit reply:<br>
+Edit comment:<br>
 <textarea maxlength="3000" name="writing" rows="6" cols="36"></textarea><br><br>
 {% endif %}
 <input type="submit" value="Save changes">

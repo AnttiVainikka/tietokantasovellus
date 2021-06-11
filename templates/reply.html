@@ -30,6 +30,9 @@ Post a public reply <br>
 {{ reply[0] }}
 <div class="reply">
 {{ reply[1] }}</div>
+{% if reply[3] %}
+<a href="/edit/reply/{{ reply[2] }}">Edit reply</a><br>
+{% endif %}
 <a href="/report/reply/{{ reply[2] }}">Report reply</a><br><br>
 {% endfor %}
 <br><br>

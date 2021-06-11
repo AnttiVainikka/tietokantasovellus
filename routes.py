@@ -157,7 +157,10 @@ def review(id):
     for comment in comments:
         sql = "SELECT Users.username, Replies.writing FROM Users, Replies WHERE Replies.comment_id=:id AND Replies.user_id = Users.id"
         replies = db.session.execute(sql, {"id":comment[2]}).fetchall()
-        final_comments.append([comment[0],comment[1],comment[2],replies])
+        if check_author(comment[0]):
+            final_comments.append([comment[0],comment[1],comment[2],replies,True])
+        else:
+            final_comments.append([comment[0],comment[1],comment[2],replies,False])
     return render_template("review.html", review = review, comments = final_comments, id = id, writer = writer, moderator = moderator)
 
 @app.route("/review/<id>/<comment_id>")
@@ -166,7 +169,13 @@ def replies(id,comment_id):
     comment = db.session.execute(sql, {"id":comment_id}).fetchone()
     sql = "SELECT Users.username, Replies.writing, Replies.id FROM Users, Replies WHERE Replies.comment_id=:id AND Replies.user_id = Users.id"
     replies = db.session.execute(sql, {"id":comment_id}).fetchall()
-    return render_template("reply.html", id = id, comment_id = comment_id, comment = comment, replies = replies)
+    final_replies = []
+    for reply in replies:
+        if check_author(reply[0]):
+            final_replies.append([reply[0],reply[1],reply[2],True])
+        else:
+            final_replies.append([reply[0],reply[1],reply[2],False])
+    return render_template("reply.html", id = id, comment_id = comment_id, comment = comment, replies = final_replies)
 
 @app.route("/comment", methods=["POST"])
 def comment():
@@ -275,7 +284,10 @@ def edit_reply(id):
     moderator = check_moderator()
     sql = "SELECT Users.username, Replies.writing, Comments.writing FROM Users, Replies, Comments WHERE Replies.id=:id AND Replies.comment_id = Comments.id AND Users.id = Replies.user_id"
     reply = db.session.execute(sql, {"id":id}).fetchone()
-    return render_template("edit_reply.html", moderator=moderator, reply=reply, id=id)
+    writer = check_author(reply[0])
+    if writer:
+        moderator = True
+    return render_template("edit_reply.html", moderator=moderator, reply=reply, id=id, writer=writer)
 
 @app.route("/edit_reply", methods=["POST"])
 def delete_reply():
@@ -284,7 +296,40 @@ def delete_reply():
         db.session.execute("DELETE FROM Reports WHERE reply_id=:reply_id", {"reply_id":reply_id})
         db.session.execute("DELETE FROM Replies WHERE id=:reply_id", {"reply_id":reply_id})
         db.session.commit()
-    return redirect("/reports")
+    writing = request.form["writing"]
+    if writing:
+        db.session.execute("UPDATE Replies SET writing=:writing WHERE id=:reply_id", {"writing":writing,"reply_id":reply_id})
+        db.session.commit()
+    if check_moderator():
+        return redirect("/reports")
+    return redirect("/")
+
+@app.route("/edit/comment/<id>")
+def edit_comment(id):
+    moderator = check_moderator()
+    sql = "SELECT Users.username, Comments.writing, Reviews.review FROM Users, Comments, Reviews WHERE Comments.id=:id AND Comments.review_id = Reviews.id AND Users.id = Comments.user_id"
+    comment = db.session.execute(sql, {"id":id}).fetchone()
+    writer = check_author(comment[0])
+    if writer:
+        moderator = True
+    return render_template("edit_comment.html", moderator=moderator, comment=comment, id=id, writer=writer)
+
+@app.route("/edit_comment", methods=["POST"])
+def delete_comment():
+    comment_id = request.form["comment_id"]
+    if request.form["delete"] == "1":
+        db.session.execute("DELETE FROM Reports WHERE comment_id=:comment_id", {"comment_id":comment_id})
+        db.session.execute("DELETE FROM Reports USING Replies WHERE Replies.id = Reports.reply_id AND Replies.comment_id=:comment_id", {"comment_id":comment_id})
+        db.session.execute("DELETE FROM Replies WHERE comment_id=:comment_id", {"comment_id":comment_id})
+        db.session.execute("DELETE FROM Comments WHERE id=:comment_id", {"comment_id":comment_id})
+        db.session.commit()
+    writing = request.form["writing"]
+    if writing:
+        db.session.execute("UPDATE Comments SET writing=:writing WHERE id=:comment_id", {"writing":writing,"comment_id":comment_id})
+        db.session.commit()
+    if check_moderator():
+        return redirect("/reports")
+    return redirect("/")
 
 @app.route("/edit/work/<id>")
 def edit_work(id):
@@ -414,9 +459,7 @@ def reports():
         elif report[1] != None:
             review_reports.append([f"/review/{report[1]}",report[5]])
         elif report[2] != None:
-            sql = "SELECT review_id FROM Comments WHERE id=:id"
-            review_id = db.session.execute(sql, {"id":report[2]}).fetchone()[0]
-            comment_reports.append([f"/review/{review_id}/{report[2]}",report[5]])
+            comment_reports.append([f"/edit/comment/{report[2]}",report[5]])
         elif report[3] != None:
             reply_reports.append([f"/edit/reply/{report[3]}",report[5]])
         elif report[4] != None:

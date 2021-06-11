@@ -15,7 +15,6 @@ Delete: <br>
 <input type="radio" name="delete" value="1"> Delete User
 <input type="radio" name="delete" value="2"> Delete Review
 <br>
-{% endif %}
 {% if writer %}
 Delete Review: <br>
 <input type="radio" name="delete_review" value="0" checked> No
@@ -37,6 +36,7 @@ New Score:
 <option value="{{ i }}"> {{ i }}
 {% endfor %}
 </select>
+{% endif %}
 <input type="hidden" name="review_id" value="{{ review[0] }}">
 <input type="hidden" name="work_id" value="{{ review[4] }}">
 <input type="hidden" name="moderator" value="{{ moderator }}">
