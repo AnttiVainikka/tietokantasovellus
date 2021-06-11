@@ -11,15 +11,12 @@ div.comment {
     max-width: 300px;
     white-space: pre-wrap
 }
-div.reply {
-    border-style: solid;
-    max-width: 300px;
-    white-space: pre-wrap;
-    margin-left: 30px;
-}
 </style>
 </head>
 <h1>Review of {{ review[0] }}</h1>
+{% if writer %}
+<a href="/edit/review/{{ id }}">Edit review</a>
+{% endif %}
 <p>
 User: {{ review[1] }} <br>
 Score: {{ review[2] }} <br>
@@ -27,6 +24,8 @@ Score: {{ review[2] }} <br>
 Review:
 <div class="review">
 {{ review[3] }}</div><br>
+<a href="/report/review/{{ id }}">Report review</a>
+<br>
 <h3>Comments</h3>
 {% if session.username %}
 <form action="/comment" method="POST">
@@ -40,7 +39,8 @@ Post a public comment <br>
 {{ comment[0] }}
 <div class="comment">
 {{ comment[1] }}</div><br>
-<a href="/review/{{ id }}/{{ comment[2] }}">Read replies</a><br><br>
+<a href="/review/{{ id }}/{{ comment[2] }}">Read replies</a>
+<br><a href="/report/comment/{{ comment[2] }}">Report comment</a><br><br>
 {% endfor %}
 <br><br>
 <a href="/">Return to front page</a>

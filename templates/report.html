@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<title>Report</title>
+<form action="/report" method="POST">
+<input type="hidden" name="type" value="{{ type }}">
+<input type="hidden" name="id" value="{{ id }}">
+Reason for report: <br>
+<textarea maxlength="500" name="reason" rows="6" cols="50"></textarea>
+<input type="submit" value="Report">
+</form>
+<br>
+<br>
+<a href="/">Return to front page</a>

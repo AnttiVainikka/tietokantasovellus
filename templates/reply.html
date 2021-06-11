@@ -29,7 +29,8 @@ Post a public reply <br>
 {% for reply in replies %}
 {{ reply[0] }}
 <div class="reply">
-{{ reply[1] }}</div><br>
+{{ reply[1] }}</div>
+<a href="/report/reply/{{ reply[2] }}">Report reply</a><br><br>
 {% endfor %}
 <br><br>
 <a href="/">Return to front page</a>

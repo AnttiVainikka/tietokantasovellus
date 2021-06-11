@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<title>Edit Review</title>
+<head>
+<style>
+div.review {
+    max-width: 500px;
+    white-space: pre-wrap
+}
+</style>
+</head>
+<form action="/edit_review" method="POST">
+{% if moderator %}
+Delete User: <br>
+<input type="radio" name="delete_user" value="0" checked> No
+<input type="radio" name="delete_user" value="1"> Yes
+<br>
+{% endif %}
+{% if writer %}
+Delete Review: <br>
+<input type="radio" name="delete_review" value="0" checked> No
+<input type="radio" name="delete_review" value="1"> Yes
+<br>
+Current Review:
+<div class="review">
+{{ review[1] }}</div><br>
+New Review: <br>
+<textarea maxlength="5000" name="review" rows="25" cols="50"></textarea>
+</p>
+<br>
+Current Score: <br>
+{{ review[2] }}<br>
+New Score:
+<select name="score">
+<option value="1" selected> 1
+{% for i in range(2,11) %}
+<option value="{{ i }}"> {{ i }}
+{% endfor %}
+</select>
+<input type="hidden" name="review_id" value="{{ review[0] }}">
+<input type="hidden" name="work_id" value="{{ review[4] }}">
+<input type="hidden" name="moderator" value="{{ moderator }}">
+<br><br>
+<input type="submit" value="Save changes">
+</form>
+{% endif %}
+<br>
+<br>
+<a href="/">Return to front page</a>

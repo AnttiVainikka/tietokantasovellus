@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<title>Reports</title>
+<head>
+<style>
+div.comment {
+    border-style: solid;
+    max-width: 300px;
+    white-space: pre-wrap
+}
+</style>
+</head>
+<h1>Reports</h1>
+<h2>Work Reports</h2>
+{% for report in work_reports %}
+<a href="{{ report[0] }}">Reported work</a><br>
+Reason for report: <br>
+<div class="comment">
+{{ report[1] }}</div><br><br>
+{% endfor %}
+<h2>Review Reports</h2>
+{% for report in review_reports %}
+<a href="{{ report[0] }}">Reported review</a><br>
+Reason for report: <br>
+<div class="comment">
+{{ report[1] }}</div><br><br>
+{% endfor %}
+<h2>Comment Reports</h2>
+{% for report in comment_reports %}
+<a href="{{ report[0] }}">Reported comment</a><br>
+Reason for report: <br>
+<div class="comment">
+{{ report[1] }}</div><br><br>
+{% endfor %}
+<h2>Reply Reports</h2>
+{% for report in reply_reports %}
+<a href="{{ report[0] }}">Reported reply</a><br>
+Reason for report: <br>
+<div class="comment">
+{{ report[1] }}</div><br><br>
+{% endfor %}
+<h2>User Reports</h2>
+{% for report in user_reports %}
+<a href="{{ report[0] }}">Reported user</a><br>
+Reason for report: <br>
+<div class="comment">
+{{ report[1] }}</div><br><br>
+{% endfor %}
+<br><br>
+<a href="/">Return to front page</a>
