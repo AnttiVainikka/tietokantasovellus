@@ -10,6 +10,9 @@ Language: {{ work[4] }}
 </p>
 <h3>Average score:</h3>
 <h2>{{ score }}/10</h2>
+{% if moderator %}
+<a href="/edit/work/{{ work[0] }}">Edit work</a>
+{% endif %}
 <br>
 <a href="/report/work/{{ work[0] }}">Report work</a>
 <br>

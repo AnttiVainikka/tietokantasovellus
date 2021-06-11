@@ -9,13 +9,7 @@ app.secret_key = getenv("SECRET_KEY")
 
 @app.route("/")
 def index():
-    moderator = False
-    try:
-        username = session["username"]
-        if db.session.execute("SELECT moderator FROM Users WHERE username=:username", {"username":username}).fetchone()[0] == 1:
-            moderator = True
-    except KeyError:
-        pass
+    moderator = check_moderator()
     return render_template("index.html", moderator= moderator)
 
 @app.route("/login")
@@ -137,6 +131,7 @@ def name_order(work):
 
 @app.route("/work/<id>")
 def work(id):
+    moderator = check_moderator()
     sql = "SELECT * FROM Works WHERE id=:id"
     work = db.session.execute(sql, {"id":id}).fetchone()
     sql = "SELECT Users.username, Reviews.score, Reviews.id FROM Reviews, Users WHERE Reviews.work_id=:id AND Users.id = Reviews.user_id"
@@ -148,23 +143,14 @@ def work(id):
             score = int(score)
     else:
         score = "?"
-    return render_template("work.html", work = work, reviews = reviews, score = score)
+    return render_template("work.html", work = work, reviews = reviews, score = score, moderator = moderator)
 
 @app.route("/review/<id>")
 def review(id):
     sql = "SELECT Works.name, Users.username, Reviews.score, Reviews.review FROM Reviews, Users, Works WHERE Reviews.id=:id AND Reviews.work_id = Works.id AND Reviews.user_id = Users.id"
     review = db.session.execute(sql, {"id":id}).fetchone()
-    writer = False
-    try:
-        username = session["username"]
-        if username == review[1]:
-            writer = True
-        else:
-            moderator = db.session.execute("SELECT moderator FROM Users WHERE username=:username", {"username":username}).fetchone()[0]
-            if moderator == 1:
-                writer = True
-    except KeyError:
-        pass
+    writer = check_author(review[1])
+    moderator = check_moderator()
     sql = "SELECT Users.username, Comments.writing, Comments.id FROM Users, Comments WHERE Comments.review_id=:id AND Comments.user_id = Users.id"
     comments = db.session.execute(sql, {"id":id}).fetchall()
     final_comments = []
@@ -172,7 +158,7 @@ def review(id):
         sql = "SELECT Users.username, Replies.writing FROM Users, Replies WHERE Replies.comment_id=:id AND Replies.user_id = Users.id"
         replies = db.session.execute(sql, {"id":comment[2]}).fetchall()
         final_comments.append([comment[0],comment[1],comment[2],replies])
-    return render_template("review.html", review = review, comments = final_comments, id = id, writer = writer)
+    return render_template("review.html", review = review, comments = final_comments, id = id, writer = writer, moderator = moderator)
 
 @app.route("/review/<id>/<comment_id>")
 def replies(id,comment_id):
@@ -220,7 +206,6 @@ def edit_review(id):
             writer = 1
         mode = db.session.execute("SELECT moderator FROM Users WHERE username=:username", {"username":username}).fetchone()[0]
         if mode == 1:
-            writer = 1
             moderator = 1
     except KeyError:
         pass
@@ -236,7 +221,7 @@ def delete_review():
     except ValueError:
         moderator = False
     if moderator == 1:
-        if int(request.form["delete_user"]) == 1:
+        if int(request.form["delete"]) == 1:
             sql = "SELECT user_id FROM Reviews WHERE id=:id"
             user_id = db.session.execute(sql, {"id":id}).fetchone()[0]
             sql = "SELECT id from Reviews WHERE user_id=:user_id"
@@ -265,20 +250,12 @@ def delete_review():
             db.session.commit()
             return redirect(page)
 
+        if int(request.form["delete"]) == 2:
+            delete_review(id)
+            return redirect(page)
+
     if int(request.form["delete_review"]) == 1:
-        sql = "DELETE FROM Reports USING Comments, Replies WHERE Comments.review_id=:id AND Replies.comment_id = Comments.id AND Reports.reply_id = Replies.id"
-        db.session.execute(sql, {"id":id})
-        sql = "DELETE FROM Replies USING Comments WHERE Comments.review_id=:id AND Replies.comment_id = Comments.id"
-        db.session.execute(sql, {"id":id})
-        sql = "DELETE FROM Reports USING Comments WHERE Comments.review_id=:id AND Reports.comment_id = Comments.id"
-        db.session.execute(sql, {"id":id})
-        sql = "DELETE FROM Comments WHERE review_id=:id"
-        db.session.execute(sql, {"id":id})
-        sql = "DELETE FROM Reports USING Reviews WHERE Reviews.id=:id AND Reports.review_id = Reviews.id"
-        db.session.execute(sql, {"id":id})
-        sql = "DELETE FROM Reviews WHERE id=:id"
-        db.session.execute(sql, {"id":id})
-        db.session.commit()
+        delete_review(id)
         return redirect(page)
 
     review = request.form["review"]
@@ -292,6 +269,89 @@ def delete_review():
 
     db.session.commit()
     return redirect(page)
+
+@app.route("/edit/reply/<id>")
+def edit_reply(id):
+    moderator = check_moderator()
+    sql = "SELECT Users.username, Replies.writing, Comments.writing FROM Users, Replies, Comments WHERE Replies.id=:id AND Replies.comment_id = Comments.id AND Users.id = Replies.user_id"
+    reply = db.session.execute(sql, {"id":id}).fetchone()
+    return render_template("edit_reply.html", moderator=moderator, reply=reply, id=id)
+
+@app.route("/edit_reply", methods=["POST"])
+def delete_reply():
+    reply_id = request.form["reply_id"]
+    if request.form["delete"] == "1":
+        db.session.execute("DELETE FROM Reports WHERE reply_id=:reply_id", {"reply_id":reply_id})
+        db.session.execute("DELETE FROM Replies WHERE id=:reply_id", {"reply_id":reply_id})
+        db.session.commit()
+    return redirect("/reports")
+
+@app.route("/edit/work/<id>")
+def edit_work(id):
+    moderator = check_moderator()
+    work = db.session.execute("SELECT * FROM Works WHERE id=:id", {"id":id}).fetchone()
+    return render_template("edit_work.html", moderator=moderator, work=work)
+
+@app.route("/edit_work", methods=["POST"])
+def delete_work():
+    work_id = request.form["work_id"]
+    if request.form["delete"] == "1":
+        reviews = db.session.execute("SELECT id from Reviews WHERE work_id=:work_id", {"work_id":work_id}).fetchall()
+        for review in reviews:
+            delete_review(review[0])
+        db.session.execute("DELETE FROM Reports WHERE work_id=:work_id", {"work_id":work_id})
+        db.session.execute("DELETE FROM Works WHERE id=:work_id", {"work_id":work_id})
+        db.session.commit()
+        return redirect("/")
+    
+    name = request.form["name"]
+    type = request.form["type"]
+    year = request.form["year"]
+    language = request.form["language"]
+
+    if name:
+        db.session.execute("UPDATE Works SET name=:name WHERE id=:work_id", {"name":name,"work_id":work_id})
+    db.session.execute("UPDATE Works SET type=:type WHERE id=:work_id", {"type":type,"work_id":work_id})
+    db.session.execute("UPDATE Works SET year=:year WHERE id=:work_id", {"year":year,"work_id":work_id})
+    db.session.execute("UPDATE Works SET language=:language WHERE id=:work_id", {"language":language,"work_id":work_id})
+
+    db.session.commit()
+    page = "/work/"+str(work_id)
+    return redirect(page)
+
+def check_author(author):
+    try:
+        username = session["username"]
+        if username == author:
+            return True
+    except KeyError:
+        pass
+    return False
+
+def check_moderator():
+    try:
+        username = session["username"]
+        moderator = db.session.execute("SELECT moderator FROM Users WHERE username=:username", {"username":username}).fetchone()[0]
+        if moderator == 1:
+            return True
+    except KeyError:
+        pass
+    return False
+
+def delete_review(id):
+    sql = "DELETE FROM Reports USING Comments, Replies WHERE Comments.review_id=:id AND Replies.comment_id = Comments.id AND Reports.reply_id = Replies.id"
+    db.session.execute(sql, {"id":id})
+    sql = "DELETE FROM Replies USING Comments WHERE Comments.review_id=:id AND Replies.comment_id = Comments.id"
+    db.session.execute(sql, {"id":id})
+    sql = "DELETE FROM Reports USING Comments WHERE Comments.review_id=:id AND Reports.comment_id = Comments.id"
+    db.session.execute(sql, {"id":id})
+    sql = "DELETE FROM Comments WHERE review_id=:id"
+    db.session.execute(sql, {"id":id})
+    sql = "DELETE FROM Reports USING Reviews WHERE Reviews.id=:id AND Reports.review_id = Reviews.id"
+    db.session.execute(sql, {"id":id})
+    sql = "DELETE FROM Reviews WHERE id=:id"
+    db.session.execute(sql, {"id":id})
+    db.session.commit()
 
 @app.route("/report/<type>/<id>")
 def report(type,id):
@@ -358,9 +418,7 @@ def reports():
             review_id = db.session.execute(sql, {"id":report[2]}).fetchone()[0]
             comment_reports.append([f"/review/{review_id}/{report[2]}",report[5]])
         elif report[3] != None:
-            sql = "SELECT Comments.review_id, Comments.id FROM Comments, Replies WHERE Replies.id=:id AND Replies.comment_id = Comments.id"
-            comment = db.session.execute(sql, {"id":report[3]}).fetchone()
-            reply_reports.append([f"/review/{comment[0]}/{comment[1]}",report[5]])
+            reply_reports.append([f"/edit/reply/{report[3]}",report[5]])
         elif report[4] != None:
             pass
     

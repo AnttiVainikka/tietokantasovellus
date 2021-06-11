@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<title>Edit Work</title>
+{% if moderator %}
+<form action="/edit_work" method="POST">
+Delete Work: <br>
+<input type="radio" name="delete" value="0" checked> No
+<input type="radio" name="delete" value="1"> Yes
+<br><br>
+Current name:<br>
+{{ work[1] }}<br><br>
+New name: <br>  
+<input type="text" name="name" oninvalid="alert('Name must be between 1-50 characters');" pattern=".{1,50}">
+<br><br><br>
+Current type:<br>
+{{ work[2] }}<br><br>
+New type:
+<p>
+<input type="radio" name="type" value="{{ work[2] }}" checked> Keep the same
+<input type="radio" name="type" value="movie" > Movie
+<input type="radio" name="type" value="tv-series"> TV-series
+<input type="radio" name="type" value="book"> Book
+<input type="radio" name="type" value="comic"> Comic
+<input type="radio" name="type" value="comic"> Game
+<input type="radio" name="type" value="other"> Other
+</p>
+<p>
+Current publishing year:<br>
+{{ work[3] }}<br><br>
+New publishing year: <br>
+<select name="year">
+<option value="0"> Other
+{% for i in range(1800,2022) %}
+<option value="{{ i }}"> {{ i }}
+{% endfor %}
+<option value="{{ work[3] }}" selected> Keep the same
+</select>
+<br><br><br>
+Current language:<br>
+{{ work[4] }}<br><br>
+New language: <br>
+<select name="language">
+<option value="{{ work[4] }}" selected> Keep the same
+<option value="English" > English
+<option value="Spanish"> Spanish
+<option value="Chinese"> Chinese
+<option value="Japanese"> Japanese
+<option value="Finnish"> Finnish
+<option value="Swedish"> Swedish
+<option value="Other"> Other
+</select>
+<br>
+<input type="hidden" name="work_id" value="{{ work[0] }}">
+<br><br>
+<input type="submit" value="Save changes">
+</form>
+<br><br>
+{% endif %}
+<a href="/">Return to front page</a>

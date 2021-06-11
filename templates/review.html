@@ -15,7 +15,10 @@ div.comment {
 </head>
 <h1>Review of {{ review[0] }}</h1>
 {% if writer %}
-<a href="/edit/review/{{ id }}">Edit review</a>
+<a href="/edit/review/{{ id }}">Edit review</a><br>
+{% endif %}
+{% if moderator %}
+<a href="/edit/review/{{ id }}">Delete review</a>
 {% endif %}
 <p>
 User: {{ review[1] }} <br>

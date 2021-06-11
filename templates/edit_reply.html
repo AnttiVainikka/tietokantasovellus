@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<title>Edit Reply</title>
+<head>
+<style>
+div.comment {
+    border-style: solid;
+    max-width: 300px;
+    white-space: pre-wrap
+}
+</style>
+</head>
+{% if moderator %}
+<form action="/edit_reply" method="POST">
+User: {{ reply[0] }}<br>
+Reply:<br>
+<div class="comment">
+{{ reply[1] }}</div><br>
+Original comment:<br>
+<div class="comment">
+{{ reply[2] }}</div><br><br>
+Delete reply: <br>
+<input type="radio" name="delete" value="0" checked> No
+<input type="radio" name="delete" value="1"> Yes
+<input type="hidden" name="reply_id" value="{{ id }}">
+<br><br>
+<input type="submit" value="Save changes">
+</form>
+<br><br>
+{% endif %}
+<a href="/">Return to front page</a>

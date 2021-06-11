@@ -10,9 +10,10 @@ div.review {
 </head>
 <form action="/edit_review" method="POST">
 {% if moderator %}
-Delete User: <br>
-<input type="radio" name="delete_user" value="0" checked> No
-<input type="radio" name="delete_user" value="1"> Yes
+Delete: <br>
+<input type="radio" name="delete" value="0" checked> No
+<input type="radio" name="delete" value="1"> Delete User
+<input type="radio" name="delete" value="2"> Delete Review
 <br>
 {% endif %}
 {% if writer %}
@@ -31,8 +32,8 @@ Current Score: <br>
 {{ review[2] }}<br>
 New Score:
 <select name="score">
-<option value="1" selected> 1
-{% for i in range(2,11) %}
+<option value="{{ review[2] }}" selected> Keep the same
+{% for i in range(1,11) %}
 <option value="{{ i }}"> {{ i }}
 {% endfor %}
 </select>
