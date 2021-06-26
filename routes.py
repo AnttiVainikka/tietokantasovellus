@@ -253,7 +253,7 @@ def edit_comment(id):
     comment = db.find_comment_edit(id)
     writer = check_author(comment[0])
     if writer:
-        moderator = True
+        moderator = False
     return render_template("edit_comment.html", moderator=moderator, comment=comment, id=id, writer=writer)
 
 @app.route("/edit_comment", methods=["POST"])

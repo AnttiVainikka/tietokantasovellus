@@ -1,3 +1,6 @@
+from flask import session
+import db
+
 def check_author(author):
     try:
         username = session["username"]

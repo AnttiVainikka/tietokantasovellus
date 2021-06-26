@@ -39,7 +39,7 @@ def find_reviews(id):
     return db.session.execute(sql, {"id":id}).fetchall()
 
 def find_review(id):
-    sql = "SELECT Works.name, Users.username, Reviews.score, Reviews.review FROM Reviews, Users, Works WHERE Reviews.id=:id AND Reviews.work_id = Works.id AND Reviews.user_id = Users.id"
+    sql = "SELECT Works.name, Users.username, Reviews.score, Reviews.review, Works.id FROM Reviews, Users, Works WHERE Reviews.id=:id AND Reviews.work_id = Works.id AND Reviews.user_id = Users.id"
     return db.session.execute(sql, {"id":id}).fetchone()
 
 def find_review_edit(id):
