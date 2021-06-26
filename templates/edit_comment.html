@@ -10,7 +10,7 @@ div.comment {
 </style>
 </head>
 {% if moderator %}
-<form action="/edit_comment" method="POST">
+<form action="/moderate_comment" method="POST">
 User: {{ comment[0] }}<br>
 Comment:<br>
 <div class="comment">
@@ -18,15 +18,31 @@ Comment:<br>
 Original review:<br>
 <div class="comment">
 {{ comment[2] }}</div><br><br>
+Delete: <br>
+<input type="radio" name="delete" value="0" checked> No
+<input type="radio" name="delete" value="1"> Delete Comment
+<input type="radio" name="delete" value="2"> Delete User
+<input type="hidden" name="comment_id" value="{{ id }}">
+<input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+<br><br>
+<input type="submit" value="Save changes">
+</form>
+<br><br>
+{% endif %}
+{% if writer %}
+<form action="/edit_comment" method="POST">
+Comment:<br>
+<div class="comment">
+{{ comment[1] }}</div><br>
 Delete comment: <br>
 <input type="radio" name="delete" value="0" checked> No
 <input type="radio" name="delete" value="1"> Yes
 <input type="hidden" name="comment_id" value="{{ id }}">
+<input type="hidden" name="review_id" value="{{ comment[3] }}">
+<input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
 <br><br>
-{% if writer %}
 Edit comment:<br>
 <textarea maxlength="3000" name="writing" rows="6" cols="36"></textarea><br><br>
-{% endif %}
 <input type="submit" value="Save changes">
 </form>
 <br><br>

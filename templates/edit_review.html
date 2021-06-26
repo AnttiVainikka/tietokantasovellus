@@ -16,6 +16,7 @@ Delete: <br>
 <input type="radio" name="delete" value="2"> Delete Review
 <br>
 <input type="hidden" name="review_id" value="{{ review[0] }}">
+<input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
 <br><br>
 <input type="submit" value="Save changes">
 </form>
@@ -45,6 +46,7 @@ New Score:
 <br>
 <input type="hidden" name="review_id" value="{{ review[0] }}">
 <input type="hidden" name="work_id" value="{{ review[4] }}">
+<input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
 <br><br>
 <input type="submit" value="Save changes">
 </form>

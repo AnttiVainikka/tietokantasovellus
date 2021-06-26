@@ -50,6 +50,14 @@ def find_review_author(id):
     sql = "SELECT user_id FROM Reviews WHERE id=:id"
     return db.session.execute(sql, {"id":id}).fetchone()[0]
 
+def find_comment_author(id):
+    sql = "SELECT user_id FROM Comments WHERE id=:id"
+    return db.session.execute(sql, {"id":id}).fetchone()[0]
+
+def find_reply_author(id):
+    sql = "SELECT user_id FROM Replies WHERE id=:id"
+    return db.session.execute(sql, {"id":id}).fetchone()[0]
+
 def find_average_score(id):
     sql = "SELECT AVG(score) FROM Reviews WHERE work_id=:id"
     return db.session.execute(sql, {"id":id}).fetchone()[0]
@@ -63,7 +71,7 @@ def find_comment(id):
     return db.session.execute(sql, {"id":id}).fetchone()
 
 def find_comment_edit(id):
-    sql = "SELECT Users.username, Comments.writing, Reviews.review FROM Users, Comments, Reviews WHERE Comments.id=:id AND Comments.review_id = Reviews.id AND Users.id = Comments.user_id"
+    sql = "SELECT Users.username, Comments.writing, Reviews.review, Reviews.id FROM Users, Comments, Reviews WHERE Comments.id=:id AND Comments.review_id = Reviews.id AND Users.id = Comments.user_id"
     return db.session.execute(sql, {"id":id}).fetchone()
 
 def find_comment_path(reply_id):
@@ -86,7 +94,7 @@ def insert_user(username,password):
     db.session.execute("INSERT INTO Users (username, moderator, password) VALUES (:username, 0, :password)", {"username":username,"password":password})
     db.session.commit()
 
-def insert_work(name,type,year,language,review,score,user_id):
+def insert_review(name,type,year,language,review,score,user_id):
     sql = "SELECT id FROM Works WHERE LOWER(name)=:name AND type=:type"
     id = db.session.execute(sql, {"name":name.lower(), "type":type}).fetchone()
     if id == None:

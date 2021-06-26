@@ -50,6 +50,7 @@ New language: <br>
 </select>
 <br>
 <input type="hidden" name="work_id" value="{{ work[0] }}">
+<input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
 <br><br>
 <input type="submit" value="Save changes">
 </form>

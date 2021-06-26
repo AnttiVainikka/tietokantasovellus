@@ -22,9 +22,11 @@ div.reply {
 <form action="/reply" method="POST">
 <input type="hidden" name="id" value="{{ id }}">
 <input type="hidden" name="comment_id" value="{{ comment_id }}">
+<input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
 Post a public reply <br>
 <textarea maxlength="3000" name="reply" rows="6" cols="36"></textarea><br>
 <input type="submit" value="Reply"><br><br>
+</form>
 {% endif %}
 {% for reply in replies %}
 {{ reply[0] }}

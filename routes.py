@@ -1,8 +1,9 @@
 from app import app
-from flask import redirect, render_template, request, session
+from flask import redirect, render_template, request, session, abort
 from os import getenv
 from werkzeug.security import check_password_hash, generate_password_hash
 import db
+from functions import check_moderator, check_author, name_order
 from copy import copy
 from secrets import token_hex
 
@@ -61,11 +62,9 @@ def write():
 
 @app.route("/send", methods=["POST"])
 def send():
-    try:
-        username = session["username"]
-    except KeyError:
-        return redirect("/write")
-
+    if session["csrf_token"] != request.form["csrf_token"]:
+        abort(403)
+    username = session["username"]
     user_id = db.find_user_id(username)
     name = request.form["name"]
     if not name:
@@ -77,13 +76,12 @@ def send():
     review = request.form["review"]
     score = request.form["score"]
 
-    db.insert_work(name,type,year,language,review,score,user_id)
+    db.insert_review(name,type,year,language,review,score,user_id)
     return redirect("/")
 
 @app.route("/search")
 def search():
     return render_template("search.html")
-
 
 @app.route("/result", methods=["POST"])
 def result():
@@ -109,9 +107,6 @@ def result():
 
     final_results.sort(key=name_order)
     return render_template("results.html", results = final_results)
-
-def name_order(work):
-    return work[1].lower()
 
 @app.route("/work/<id>")
 def work(id):
@@ -157,6 +152,8 @@ def replies(id,comment_id):
 
 @app.route("/comment", methods=["POST"])
 def comment():
+    if session["csrf_token"] != request.form["csrf_token"]:
+        abort(403)
     review_id = request.form["id"]
     username = session["username"]
     user_id = db.find_user_id(username)
@@ -167,6 +164,8 @@ def comment():
 
 @app.route("/reply", methods=["POST"])
 def reply():
+    if session["csrf_token"] != request.form["csrf_token"]:
+        abort(403)
     review_id = request.form["id"]
     comment_id = request.form["comment_id"]
     username = session["username"]
@@ -174,6 +173,33 @@ def reply():
     writing = request.form["reply"]
     db.insert_reply(comment_id,user_id,writing)
     page = "/review/" + str(review_id) + "/" + str(comment_id)
+    return redirect(page)
+
+@app.route("/edit/work/<id>")
+def edit_work(id):
+    moderator = check_moderator()
+    work = db.find_work(id)
+    return render_template("edit_work.html", moderator=moderator, work=work)
+
+@app.route("/edit_work", methods=["POST"])
+def edit_work_properties():
+    if session["csrf_token"] != request.form["csrf_token"]:
+        abort(403)
+    work_id = request.form["work_id"]
+    if request.form["delete"] == "1":
+        db.delete_work(work_id)
+        return redirect("/")
+
+    name = request.form["name"]
+    type = request.form["type"]
+    year = request.form["year"]
+    language = request.form["language"]
+
+    if name:
+        db.update_work_name(work_id,name)
+    db.update_work_properties(work_id,type,year,language)
+
+    page = "/work/"+str(work_id)
     return redirect(page)
 
 @app.route("/edit/review/<id>")
@@ -185,22 +211,10 @@ def edit_review(id):
         moderator = False
     return render_template("edit_review.html", moderator = moderator, writer = writer, review = review)
 
-@app.route("/moderate_review", methods=["POST"])
-def moderate_review():
-    id = request.form["review_id"]
-    if int(request.form["delete"]) == 1:
-        user_id = db.find_review_author(id)
-        db.delete_user(user_id)
-        return redirect("/reports")
-
-    if int(request.form["delete"]) == 2:
-        db.delete_review(id)
-        return redirect("/reports")
-
-    return redirect("/reports")
-
 @app.route("/edit_review", methods=["POST"])
 def edit_own_review():
+    if session["csrf_token"] != request.form["csrf_token"]:
+        abort(403)
     id = request.form["review_id"]
     work_id = request.form["work_id"]
     page = "/work/" + str(work_id)
@@ -218,32 +232,19 @@ def edit_own_review():
 
     return redirect(page)
 
-@app.route("/edit/reply/<id>")
-def edit_reply(id):
-    moderator = check_moderator()
-    reply = db.find_reply(id)
-    writer = check_author(reply[0])
-    if writer:
-        moderator = False
-    return render_template("edit_reply.html", moderator=moderator, reply=reply, id=id, writer=writer)
+@app.route("/moderate_review", methods=["POST"])
+def moderate_review():
+    if session["csrf_token"] != request.form["csrf_token"]:
+        abort(403)
+    id = request.form["review_id"]
+    if int(request.form["delete"]) == 1:
+        user_id = db.find_review_author(id)
+        db.delete_user(user_id)
+        return redirect("/reports")
 
-@app.route("/edit_reply", methods=["POST"])
-def edit_own_reply():
-    reply_id = request.form["reply_id"]
-    path = db.find_comment_path(reply_id)
-    if request.form["delete"] == "1":
-        db.delete_reply(reply_id)
-    writing = request.form["writing"]
-    if writing:
-        db.update_reply(reply_id,writing)
-    page = "/review/" + str(path[0]) + "/" + str(path[1])
-    return redirect(page)
+    if int(request.form["delete"]) == 2:
+        db.delete_review(id)
 
-@app.route("/moderate_reply", methods=["POST"])
-def moderate_reply():
-    reply_id = request.form["reply_id"]
-    if request.form["delete"] == "1":
-        db.delete_reply(reply_id)
     return redirect("/reports")
 
 @app.route("/edit/comment/<id>")
@@ -256,41 +257,75 @@ def edit_comment(id):
     return render_template("edit_comment.html", moderator=moderator, comment=comment, id=id, writer=writer)
 
 @app.route("/edit_comment", methods=["POST"])
-def delete_comment():
+def edit_own_comment():
+    if session["csrf_token"] != request.form["csrf_token"]:
+        abort(403)
     comment_id = request.form["comment_id"]
+    review_id = request.form["review_id"]
+    page = "/review/" + str(review_id)
     if request.form["delete"] == "1":
         db.delete_comment(comment_id)
+        return redirect(page)
     writing = request.form["writing"]
     if writing:
         db.update_comment(comment_id,writing)
-    if check_moderator():
-        return redirect("/reports")
-    return redirect("/")
-
-@app.route("/edit/work/<id>")
-def edit_work(id):
-    moderator = check_moderator()
-    work = db.find_work(id)
-    return render_template("edit_work.html", moderator=moderator, work=work)
-
-@app.route("/edit_work", methods=["POST"])
-def delete_work():
-    work_id = request.form["work_id"]
-    if request.form["delete"] == "1":
-        db.delete_work(work_id)
-        return redirect("/")
-
-    name = request.form["name"]
-    type = request.form["type"]
-    year = request.form["year"]
-    language = request.form["language"]
-
-    if name:
-        db.update_work_name(work_id,name)
-    db.update_work_properties(work_id,type,year,language)
-
-    page = "/work/"+str(work_id)
     return redirect(page)
+
+@app.route("/moderate_comment", methods=["POST"])
+def moderate_comment():
+    if session["csrf_token"] != request.form["csrf_token"]:
+        abort(403)
+    comment_id = request.form["comment_id"]
+
+    if request.form["delete"] == "2":
+        user_id = db.find_comment_author(comment_id)
+        db.delete_user(user_id)
+        return redirect("/reports")
+
+    if request.form["delete"] == "1":
+        db.delete_comment(comment_id)
+
+    return redirect("/reports")
+
+@app.route("/edit/reply/<id>")
+def edit_reply(id):
+    moderator = check_moderator()
+    reply = db.find_reply(id)
+    writer = check_author(reply[0])
+    if writer:
+        moderator = False
+    return render_template("edit_reply.html", moderator=moderator, reply=reply, id=id, writer=writer)
+
+@app.route("/edit_reply", methods=["POST"])
+def edit_own_reply():
+    if session["csrf_token"] != request.form["csrf_token"]:
+        abort(403)
+    reply_id = request.form["reply_id"]
+    path = db.find_comment_path(reply_id)
+    page = "/review/" + str(path[0]) + "/" + str(path[1])
+    if request.form["delete"] == "1":
+        db.delete_reply(reply_id)
+        return redirect(page)
+    writing = request.form["writing"]
+    if writing:
+        db.update_reply(reply_id,writing)
+    return redirect(page)
+
+@app.route("/moderate_reply", methods=["POST"])
+def moderate_reply():
+    if session["csrf_token"] != request.form["csrf_token"]:
+        abort(403)
+    reply_id = request.form["reply_id"]
+
+    if request.form["delete"] == "2":
+        user_id = db.find_reply_author(reply_id)
+        db.delete_user(user_id)
+        return redirect("/reports")
+
+    if request.form["delete"] == "1":
+        db.delete_reply(reply_id)
+
+    return redirect("/reports")
 
 @app.route("/report/<type>/<id>")
 def report(type,id):
@@ -328,6 +363,7 @@ def reports():
     comment_reports = []
     reply_reports = []
     reports = db.find_reports()
+    moderator = check_moderator()
 
     for report in reports:
         if report[0] != None:
@@ -339,24 +375,4 @@ def reports():
         elif report[3] != None:
             reply_reports.append([f"/edit/reply/{report[3]}",report[5]])
 
-    return render_template("reports.html",work_reports=work_reports,review_reports=review_reports,comment_reports=comment_reports,reply_reports=reply_reports)
-
-
-def check_author(author):
-    try:
-        username = session["username"]
-        if username == author:
-            return True
-    except KeyError:
-        pass
-    return False
-
-def check_moderator():
-    try:
-        username = session["username"]
-        moderator = db.find_moderator(username)
-        if moderator == 1:
-            return True
-    except KeyError:
-        pass
-    return False
+    return render_template("reports.html",work_reports=work_reports,review_reports=review_reports,comment_reports=comment_reports,reply_reports=reply_reports,moderator=moderator)

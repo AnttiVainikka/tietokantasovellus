@@ -20,8 +20,10 @@ Original comment:<br>
 {{ reply[2] }}</div><br><br>
 Delete reply: <br>
 <input type="radio" name="delete" value="0" checked> No
-<input type="radio" name="delete" value="1"> Yes
+<input type="radio" name="delete" value="1"> Delete Reply
+<input type="radio" name="delete" value="2"> Delete User
 <input type="hidden" name="reply_id" value="{{ id }}">
+<input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
 <br><br>
 <input type="submit" value="Save changes">
 </form>
@@ -29,7 +31,6 @@ Delete reply: <br>
 {% endif %}
 {% if writer %}
 <form action="/edit_reply" method="POST">
-User: {{ reply[0] }}<br>
 Reply:<br>
 <div class="comment">
 {{ reply[1] }}</div><br>
@@ -40,6 +41,7 @@ Delete reply: <br>
 <input type="radio" name="delete" value="0" checked> No
 <input type="radio" name="delete" value="1"> Yes
 <input type="hidden" name="reply_id" value="{{ id }}">
+<input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
 <br><br>
 Edit reply:<br>
 <textarea maxlength="3000" name="writing" rows="6" cols="36"></textarea><br><br>

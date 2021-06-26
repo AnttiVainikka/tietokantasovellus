@@ -33,6 +33,7 @@ Review:
 {% if session.username %}
 <form action="/comment" method="POST">
 <input type="hidden" name="id" value="{{ id }}">
+<input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
 Post a public comment <br>
 <textarea maxlength="3000" name="comment" rows="6" cols="36"></textarea><br>
 <input type="submit" value="Comment"><br><br>

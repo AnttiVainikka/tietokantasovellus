@@ -10,6 +10,7 @@ div.comment {
 </style>
 </head>
 <h1>Reports</h1>
+{% if moderator %}
 <h2>Work Reports</h2>
 {% for report in work_reports %}
 <a href="{{ report[0] }}">Reported work</a><br>
@@ -38,5 +39,8 @@ Reason for report: <br>
 <div class="comment">
 {{ report[1] }}</div><br><br>
 {% endfor %}
+{% else %}
+Only a moderator can read reports.
+{% endif %}
 <br><br>
 <a href="/">Return to front page</a>
