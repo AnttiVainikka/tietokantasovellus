@@ -8,14 +8,20 @@ div.review {
 }
 </style>
 </head>
-<form action="/edit_review" method="POST">
 {% if moderator %}
+<form action="/moderate_review" method="POST">
 Delete: <br>
 <input type="radio" name="delete" value="0" checked> No
 <input type="radio" name="delete" value="1"> Delete User
 <input type="radio" name="delete" value="2"> Delete Review
 <br>
+<input type="hidden" name="review_id" value="{{ review[0] }}">
+<br><br>
+<input type="submit" value="Save changes">
+</form>
+{% endif %}
 {% if writer %}
+<form action="/edit_review" method="POST">
 Delete Review: <br>
 <input type="radio" name="delete_review" value="0" checked> No
 <input type="radio" name="delete_review" value="1"> Yes
@@ -36,14 +42,12 @@ New Score:
 <option value="{{ i }}"> {{ i }}
 {% endfor %}
 </select>
-{% endif %}
+<br>
 <input type="hidden" name="review_id" value="{{ review[0] }}">
 <input type="hidden" name="work_id" value="{{ review[4] }}">
-<input type="hidden" name="moderator" value="{{ moderator }}">
 <br><br>
 <input type="submit" value="Save changes">
 </form>
 {% endif %}
-<br>
-<br>
+<br><br>
 <a href="/">Return to front page</a>
