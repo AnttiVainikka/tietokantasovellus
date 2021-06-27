@@ -19,7 +19,11 @@ Original review:<br>
 <div class="comment">
 {{ comment[2] }}</div><br><br>
 Delete: <br>
+{% if report %}
+<input type="radio" name="delete" value="3" checked> Delete Report
+{% else %}
 <input type="radio" name="delete" value="0" checked> No
+{% endif %}
 <input type="radio" name="delete" value="1"> Delete Comment
 <input type="radio" name="delete" value="2"> Delete User
 <input type="hidden" name="comment_id" value="{{ id }}">
@@ -35,7 +39,15 @@ Comment:<br>
 <div class="comment">
 {{ comment[1] }}</div><br>
 Delete comment: <br>
+{% if moderator2 %}
+{% if report %}
+<input type="radio" name="delete" value="3" checked> Delete Report
+{% else %}
 <input type="radio" name="delete" value="0" checked> No
+{% endif %}
+{% else %}
+<input type="radio" name="delete" value="0" checked> No
+{% endif %}
 <input type="radio" name="delete" value="1"> Yes
 <input type="hidden" name="comment_id" value="{{ id }}">
 <input type="hidden" name="review_id" value="{{ comment[3] }}">

@@ -14,12 +14,6 @@ div.comment {
 </style>
 </head>
 <h1>Review of {{ review[0] }}</h1>
-{% if writer %}
-<a href="/edit/review/{{ id }}">Edit review</a><br>
-{% endif %}
-{% if moderator %}
-<a href="/edit/review/{{ id }}">Delete review</a>
-{% endif %}
 <p>
 User: {{ review[1] }} <br>
 Score: {{ review[2] }} <br>
@@ -27,7 +21,17 @@ Score: {{ review[2] }} <br>
 Review:
 <div class="review">
 {{ review[3] }}</div><br>
+{% if writer %}
+<a href="/edit/review/{{ id }}">Edit review</a><br>
+{% endif %}
+{% if moderator %}
+<a href="/edit/review/{{ id }}">Moderate review</a>
+{% else %}
+{% if writer %}
+{% else %}
 <a href="/report/review/{{ id }}">Report review</a>
+{% endif %}
+{% endif %}
 <br>
 <h3>Comments</h3>
 {% if session.username %}
@@ -45,9 +49,10 @@ Post a public comment <br>
 {{ comment[1] }}</div><br>
 <a href="/review/{{ id }}/{{ comment[2] }}">Read replies</a>
 {% if comment[4] %}
-<br><a href="/edit/comment/{{ comment[2] }}">Edit comment</a>
-{% endif %}
+<br><a href="/edit/comment/{{ comment[2] }}">Edit comment</a><br><br>
+{% else %}
 <br><a href="/report/comment/{{ comment[2] }}">Report comment</a><br><br>
+{% endif %}
 {% endfor %}
 <br><br>
 <a href="/work/{{ review[4] }}">Return to work</a><br>

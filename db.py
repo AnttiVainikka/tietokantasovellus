@@ -86,6 +86,23 @@ def find_reply(id):
     sql = "SELECT Users.username, Replies.writing, Comments.writing FROM Users, Replies, Comments WHERE Replies.id=:id AND Replies.comment_id = Comments.id AND Users.id = Replies.user_id"
     return db.session.execute(sql, {"id":id}).fetchone()
 
+def find_report(id,type):
+    if type == "work":
+        sql = "SELECT * FROM Reports WHERE work_id=:id"
+        return db.session.execute(sql, {"id":id}).fetchone()
+
+    if type == "review":
+        sql = "SELECT * FROM Reports WHERE review_id=:id"
+        return db.session.execute(sql, {"id":id}).fetchone()
+    
+    if type == "comment":
+        sql = "SELECT * FROM Reports WHERE comment_id=:id"
+        return db.session.execute(sql, {"id":id}).fetchone()
+    
+    if type == "reply":
+        sql = "SELECT * FROM Reports WHERE reply_id=:id"
+        return db.session.execute(sql, {"id":id}).fetchone()
+
 def find_reports():
     return db.session.execute("SELECT * FROM Reports").fetchall()
 
@@ -231,4 +248,15 @@ def delete_comment(id):
 def delete_reply(id):
     db.session.execute("DELETE FROM Reports WHERE reply_id=:id", {"id":id})
     db.session.execute("DELETE FROM Replies WHERE id=:id", {"id":id})
+    db.session.commit()
+
+def delete_report(id,type):
+    if type == "work":
+        db.session.execute("DELETE FROM Reports WHERE work_id=:id", {"id":id})
+    if type == "review":
+        db.session.execute("DELETE FROM Reports WHERE review_id=:id", {"id":id})
+    if type == "comment":
+        db.session.execute("DELETE FROM Reports WHERE comment_id=:id", {"id":id})
+    if type == "reply":
+        db.session.execute("DELETE FROM Reports WHERE reply_id=:id", {"id":id})
     db.session.commit()

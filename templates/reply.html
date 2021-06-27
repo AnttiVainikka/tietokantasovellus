@@ -33,9 +33,10 @@ Post a public reply <br>
 <div class="reply">
 {{ reply[1] }}</div>
 {% if reply[3] %}
-<a href="/edit/reply/{{ reply[2] }}">Edit reply</a><br>
-{% endif %}
+<a href="/edit/reply/{{ reply[2] }}">Edit reply</a><br><br>
+{% else %}
 <a href="/report/reply/{{ reply[2] }}">Report reply</a><br><br>
+{% endif %}
 {% endfor %}
 <br><br>
 <a href="/review/{{ id }}">Return to review</a><br>

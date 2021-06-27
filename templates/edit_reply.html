@@ -19,7 +19,11 @@ Original comment:<br>
 <div class="comment">
 {{ reply[2] }}</div><br><br>
 Delete reply: <br>
+{% if report %}
+<input type="radio" name="delete" value="3" checked> Delete Report
+{% else %}
 <input type="radio" name="delete" value="0" checked> No
+{% endif %}
 <input type="radio" name="delete" value="1"> Delete Reply
 <input type="radio" name="delete" value="2"> Delete User
 <input type="hidden" name="reply_id" value="{{ id }}">
@@ -38,7 +42,15 @@ Original comment:<br>
 <div class="comment">
 {{ reply[2] }}</div><br><br>
 Delete reply: <br>
+{% if moderator2 %}
+{% if report %}
+<input type="radio" name="delete" value="3" checked> Delete Report
+{% else %}
 <input type="radio" name="delete" value="0" checked> No
+{% endif %}
+{% else %}
+<input type="radio" name="delete" value="0" checked> No
+{% endif %}
 <input type="radio" name="delete" value="1"> Yes
 <input type="hidden" name="reply_id" value="{{ id }}">
 <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">

@@ -179,16 +179,21 @@ def reply():
 def edit_work(id):
     moderator = check_moderator()
     work = db.find_work(id)
-    return render_template("edit_work.html", moderator=moderator, work=work)
+    report = db.find_report(id,"work")
+    return render_template("edit_work.html", moderator=moderator, work=work, report = report)
 
 @app.route("/edit_work", methods=["POST"])
 def edit_work_properties():
     if session["csrf_token"] != request.form["csrf_token"]:
         abort(403)
     work_id = request.form["work_id"]
+
     if request.form["delete"] == "1":
         db.delete_work(work_id)
         return redirect("/")
+
+    if request.form["delete"] == "2":
+        db.delete_report(work_id,"work")
 
     name = request.form["name"]
     type = request.form["type"]
@@ -207,28 +212,35 @@ def edit_review(id):
     review = db.find_review_edit(id)
     writer = check_author(review[3])
     moderator = check_moderator()
+    moderator2 = False
     if writer:
+        if moderator:
+            moderator2 = True
         moderator = False
-    return render_template("edit_review.html", moderator = moderator, writer = writer, review = review)
+    report = db.find_report(id,"review")
+    return render_template("edit_review.html", moderator = moderator, moderator2 = moderator2, writer = writer, review = review, report = report)
 
 @app.route("/edit_review", methods=["POST"])
 def edit_own_review():
     if session["csrf_token"] != request.form["csrf_token"]:
         abort(403)
-    id = request.form["review_id"]
+    review_id = request.form["review_id"]
     work_id = request.form["work_id"]
     page = "/work/" + str(work_id)
 
-    if int(request.form["delete_review"]) == 1:
-        db.delete_review(id)
+    if request.form["delete"] == "3":
+        db.delete_report(review_id,"review")
+
+    if request.form["delete"] == "1":
+        db.delete_review(review_id)
         return redirect(page)
 
     review = request.form["review"]
     if review:
-        db.update_review(id,review)
+        db.update_review(review_id,review)
 
     score = request.form["score"]
-    db.update_score(id,score)
+    db.update_score(review_id,score)
 
     return redirect(page)
 
@@ -236,14 +248,17 @@ def edit_own_review():
 def moderate_review():
     if session["csrf_token"] != request.form["csrf_token"]:
         abort(403)
-    id = request.form["review_id"]
-    if int(request.form["delete"]) == 1:
-        user_id = db.find_review_author(id)
-        db.delete_user(user_id)
-        return redirect("/reports")
+    review_id = request.form["review_id"]
 
-    if int(request.form["delete"]) == 2:
-        db.delete_review(id)
+    if request.form["delete"] == "3":
+        db.delete_report(review_id,"review")
+
+    if request.form["delete"] == "2":
+        user_id = db.find_review_author(review_id)
+        db.delete_user(user_id)
+
+    if request.form["delete"] == "1":
+        db.delete_review(review_id)
 
     return redirect("/reports")
 
@@ -252,9 +267,13 @@ def edit_comment(id):
     moderator = check_moderator()
     comment = db.find_comment_edit(id)
     writer = check_author(comment[0])
+    moderator2 = False
     if writer:
+        if moderator:
+            moderator2 = True
         moderator = False
-    return render_template("edit_comment.html", moderator=moderator, comment=comment, id=id, writer=writer)
+    report = db.find_report(id,"comment")
+    return render_template("edit_comment.html", moderator=moderator, moderator2=moderator2, comment=comment, id=id, writer=writer, report = report)
 
 @app.route("/edit_comment", methods=["POST"])
 def edit_own_comment():
@@ -263,12 +282,18 @@ def edit_own_comment():
     comment_id = request.form["comment_id"]
     review_id = request.form["review_id"]
     page = "/review/" + str(review_id)
+
+    if request.form["delete"] == "3":
+        db.delete_report(comment_id,"comment")
+
     if request.form["delete"] == "1":
         db.delete_comment(comment_id)
         return redirect(page)
+
     writing = request.form["writing"]
     if writing:
         db.update_comment(comment_id,writing)
+
     return redirect(page)
 
 @app.route("/moderate_comment", methods=["POST"])
@@ -277,10 +302,12 @@ def moderate_comment():
         abort(403)
     comment_id = request.form["comment_id"]
 
+    if request.form["delete"] == "3":
+        db.delete_report(comment_id,"comment")
+
     if request.form["delete"] == "2":
         user_id = db.find_comment_author(comment_id)
         db.delete_user(user_id)
-        return redirect("/reports")
 
     if request.form["delete"] == "1":
         db.delete_comment(comment_id)
@@ -290,11 +317,15 @@ def moderate_comment():
 @app.route("/edit/reply/<id>")
 def edit_reply(id):
     moderator = check_moderator()
+    moderator2 = False
     reply = db.find_reply(id)
     writer = check_author(reply[0])
     if writer:
+        if moderator:
+            moderator2 = True
         moderator = False
-    return render_template("edit_reply.html", moderator=moderator, reply=reply, id=id, writer=writer)
+    report = db.find_report(id,"reply")
+    return render_template("edit_reply.html", moderator=moderator, moderator2=moderator2, reply=reply, id=id, writer=writer, report = report)
 
 @app.route("/edit_reply", methods=["POST"])
 def edit_own_reply():
@@ -303,12 +334,18 @@ def edit_own_reply():
     reply_id = request.form["reply_id"]
     path = db.find_comment_path(reply_id)
     page = "/review/" + str(path[0]) + "/" + str(path[1])
+
+    if request.form["delete"] == "3":
+        db.delete_report(reply_id,"reply")
+
     if request.form["delete"] == "1":
         db.delete_reply(reply_id)
         return redirect(page)
+
     writing = request.form["writing"]
     if writing:
         db.update_reply(reply_id,writing)
+
     return redirect(page)
 
 @app.route("/moderate_reply", methods=["POST"])
@@ -317,10 +354,12 @@ def moderate_reply():
         abort(403)
     reply_id = request.form["reply_id"]
 
+    if request.form["delete"] == "3":
+        db.delete_report(reply_id,"reply")
+
     if request.form["delete"] == "2":
         user_id = db.find_reply_author(reply_id)
         db.delete_user(user_id)
-        return redirect("/reports")
 
     if request.form["delete"] == "1":
         db.delete_reply(reply_id)

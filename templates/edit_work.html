@@ -2,9 +2,13 @@
 <title>Edit Work</title>
 {% if moderator %}
 <form action="/edit_work" method="POST">
-Delete Work: <br>
+Delete: <br>
+{% if report %}
+<input type="radio" name="delete" value="2" checked> Delete Report
+{% else %}
 <input type="radio" name="delete" value="0" checked> No
-<input type="radio" name="delete" value="1"> Yes
+{% endif %}
+<input type="radio" name="delete" value="1"> Delete Work
 <br><br>
 Current name:<br>
 {{ work[1] }}<br><br>
