@@ -218,7 +218,7 @@ def delete_user(user_id):
 def delete_work(id):
     reviews = db.session.execute("SELECT id from Reviews WHERE work_id=:id", {"id":id}).fetchall()
     for review in reviews:
-        db.delete_review(review[0])
+        delete_review(review[0])
     db.session.execute("DELETE FROM Reports WHERE work_id=:id", {"id":id})
     db.session.execute("DELETE FROM Works WHERE id=:id", {"id":id})
     db.session.commit()
