@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+{% extends "layout.html" %}
+{% block content %}
 <title>Edit Work</title>
 {% if moderator %}
 <form action="/edit_work" method="POST">
@@ -60,4 +61,4 @@ New language: <br>
 </form>
 <br><br>
 {% endif %}
-<a href="/">Return to front page</a>
+{% endblock %}

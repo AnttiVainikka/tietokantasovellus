@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+{% extends "layout.html" %}
+{% block content %}
 <title>Report</title>
 <form action="/report" method="POST">
 <input type="hidden" name="type" value="{{ type }}">
@@ -9,4 +10,4 @@ Reason for report: <br>
 </form>
 <br>
 <br>
-<a href="/">Return to front page</a>
+{% endblock %}

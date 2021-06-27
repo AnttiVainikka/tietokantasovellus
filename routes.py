@@ -12,11 +12,12 @@ app.secret_key = getenv("SECRET_KEY")
 @app.route("/")
 def index():
     moderator = check_moderator()
-    return render_template("index.html", moderator= moderator)
+    return render_template("index.html",moderator=moderator)
 
 @app.route("/login")
 def login():
-    return render_template("login.html")
+    moderator = check_moderator()
+    return render_template("login.html",moderator=moderator)
 
 @app.route("/log", methods=["POST"])
 def log():
@@ -38,19 +39,21 @@ def logout():
 
 @app.route("/create")
 def create():
-    return render_template("create.html",error=False)
+    moderator = check_moderator()
+    return render_template("create.html",error=False,moderator=moderator)
 
 @app.route("/create_account", methods=["POST"])
 def create_account():
     username = request.form["username"]
     password = request.form["password"]
     password2 = request.form["password2"]
+    moderator = check_moderator()
 
     user_id = db.find_user_id(username)
     if user_id != None:
-        return render_template("create.html", error="Username taken")
+        return render_template("create.html", error="Username taken",moderator=moderator)
     if password != password2:
-        return render_template("create.html", error="Passwords not identical")
+        return render_template("create.html", error="Passwords not identical",moderator=moderator)
 
     password = generate_password_hash(password2)
     db.insert_user(username,password)
@@ -58,7 +61,8 @@ def create_account():
 
 @app.route("/write")
 def write():
-    return render_template("write.html")
+    moderator = check_moderator()
+    return render_template("write.html",moderator=moderator)
 
 @app.route("/send", methods=["POST"])
 def send():
@@ -81,7 +85,8 @@ def send():
 
 @app.route("/search")
 def search():
-    return render_template("search.html")
+    moderator = check_moderator()
+    return render_template("search.html",moderator=moderator)
 
 @app.route("/result", methods=["POST"])
 def result():
@@ -90,6 +95,7 @@ def result():
     year = request.form["year"]
     language = request.form["language"]
     results = db.find_results(name)
+    moderator = check_moderator()
 
     final_results = copy(results)
     for result in results:
@@ -106,7 +112,7 @@ def result():
                 final_results.remove(result)
 
     final_results.sort(key=name_order)
-    return render_template("results.html", results = final_results)
+    return render_template("results.html", results = final_results,moderator=moderator)
 
 @app.route("/work/<id>")
 def work(id):
@@ -126,6 +132,7 @@ def review(id):
     review = db.find_review(id)
     writer = check_author(review[1])
     moderator = check_moderator()
+    moderator2 = moderator
     if writer:
         moderator = False
     comments = db.find_comments(id)
@@ -136,19 +143,20 @@ def review(id):
             final_comments.append([comment[0],comment[1],comment[2],replies,True])
         else:
             final_comments.append([comment[0],comment[1],comment[2],replies,False])
-    return render_template("review.html", review = review, comments = final_comments, id = id, writer = writer, moderator = moderator)
+    return render_template("review.html", review = review, comments = final_comments, id = id, writer = writer, moderator = moderator, moderator2 = moderator2)
 
 @app.route("/review/<id>/<comment_id>")
 def replies(id,comment_id):
     comment = db.find_comment(comment_id)
     replies = db.find_replies(comment_id)
+    moderator = check_moderator()
     final_replies = []
     for reply in replies:
         if check_author(reply[0]):
             final_replies.append([reply[0],reply[1],reply[2],True])
         else:
             final_replies.append([reply[0],reply[1],reply[2],False])
-    return render_template("reply.html", id = id, comment_id = comment_id, comment = comment, replies = final_replies)
+    return render_template("reply.html", id = id, comment_id = comment_id, comment = comment, replies = final_replies, moderator = moderator)
 
 @app.route("/comment", methods=["POST"])
 def comment():
@@ -212,10 +220,8 @@ def edit_review(id):
     review = db.find_review_edit(id)
     writer = check_author(review[3])
     moderator = check_moderator()
-    moderator2 = False
+    moderator2 = moderator
     if writer:
-        if moderator:
-            moderator2 = True
         moderator = False
     report = db.find_report(id,"review")
     return render_template("edit_review.html", moderator = moderator, moderator2 = moderator2, writer = writer, review = review, report = report)
@@ -264,13 +270,11 @@ def moderate_review():
 
 @app.route("/edit/comment/<id>")
 def edit_comment(id):
-    moderator = check_moderator()
     comment = db.find_comment_edit(id)
     writer = check_author(comment[0])
-    moderator2 = False
+    moderator = check_moderator()
+    moderator2 = moderator
     if writer:
-        if moderator:
-            moderator2 = True
         moderator = False
     report = db.find_report(id,"comment")
     return render_template("edit_comment.html", moderator=moderator, moderator2=moderator2, comment=comment, id=id, writer=writer, report = report)
@@ -317,12 +321,10 @@ def moderate_comment():
 @app.route("/edit/reply/<id>")
 def edit_reply(id):
     moderator = check_moderator()
-    moderator2 = False
+    moderator2 = moderator
     reply = db.find_reply(id)
     writer = check_author(reply[0])
     if writer:
-        if moderator:
-            moderator2 = True
         moderator = False
     report = db.find_report(id,"reply")
     return render_template("edit_reply.html", moderator=moderator, moderator2=moderator2, reply=reply, id=id, writer=writer, report = report)
@@ -368,7 +370,8 @@ def moderate_reply():
 
 @app.route("/report/<type>/<id>")
 def report(type,id):
-    return render_template("report.html", type = type, id = id)
+    moderator = check_moderator()
+    return render_template("report.html", type = type, id = id, moderator = moderator)
 
 @app.route("/report", methods=["POST"])
 def add_report():

@@ -1,5 +1,7 @@
-<!DOCTYPE html>
+{% extends "layout.html" %}
+{% block content %}
 <title>Search Results</title>
+{% if results %}
 <h1>Your results:</h1> <br>
 {% for result in results %}
 <p>
@@ -8,5 +10,7 @@ Type: {{ result[2] }}<br> Publishing year: {{ result[3] }}<br> Language: {{ resu
 <a href="/work/{{ result[0] }}">Read reviews</a>
 </p>
 {% endfor %}
-<br>
-<a href="/">Return to front page</a>
+{% else %}
+<h1>No results</h1>
+{% endif %}
+{% endblock %}

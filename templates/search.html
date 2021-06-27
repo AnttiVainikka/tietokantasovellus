@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+{% extends "layout.html" %}
+{% block content %}
 <title>Search</title>
 <form action="/result" method="POST">
 Name of Work: <br>
@@ -40,4 +41,4 @@ Language: <br>
 </form>
 <br>
 <br>
-<a href="/">Return to front page</a>
+{% endblock %}

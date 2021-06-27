@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+{% extends "layout.html" %}
+{% block content %}
 <title>Write Review</title>
 {% if session.username %}
 <form action="/send" method="POST">
@@ -57,4 +58,4 @@ You must be logged in to write reviews.
 {% endif %}
 <br>
 <br>
-<a href="/">Return to front page</a>
+{% endblock %}

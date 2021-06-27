@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+{% extends "layout.html" %}
+{% block content %}
 <title>Log In</title>
 {% if session.username %}
 <p>You are logged in as {{ session.username }}</p>
@@ -19,4 +20,4 @@ Password: <br>
 {% endif %}
 <br>
 <br>
-<a href="/">Return to front page</a>
+{% endblock %}

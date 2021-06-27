@@ -1,0 +1,45 @@
+<!doctype html>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+<div class="container">
+<nav class="navbar navbar-expand-sm navbar-light">
+<a class="navbar-brand" href="/">Review Site</a>
+<ul class="navbar-nav">
+
+{% if session.username %}
+<li class="nav-item">
+<a class="nav-link" href="/logout">Log out</a>
+</li>
+
+<li class="nav-item">
+<a class="nav-link" href="/search">Search</a>
+</li>
+    
+<li class="nav-item">
+<a class="nav-link" href="/write">Write Review</a>
+</li>
+
+{% if moderator %}
+<li class="nav-item">
+<a class="nav-link" href="/reports">Check reports</a>
+</li>
+{% else %}
+{% if moderator2 %}
+<li class="nav-item">
+<a class="nav-link" href="/reports">Check reports</a>
+</li>
+{% endif %}{% endif %}
+
+{% else %}
+<li class="nav-item">
+<a class="nav-link" href="/login">Log in</a>
+</li>
+
+<li class="nav-item">
+<a class="nav-link" href="/search">Search</a>
+</li>
+
+{% endif %}
+</ul>
+</nav>
+{% block content %}{% endblock %}

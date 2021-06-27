@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+{% extends "layout.html" %}
+{% block content %}
 <title>Reports</title>
 <head>
 <style>
@@ -43,4 +44,4 @@ Reason for report: <br>
 Only a moderator can read reports.
 {% endif %}
 <br><br>
-<a href="/">Return to front page</a>
+{% endblock %}

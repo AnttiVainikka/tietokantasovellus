@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+{% extends "layout.html" %}
+{% block content %}
 <title>Create Account</title>
 <form action="/create_account" method="POST">
 Username: <br>
@@ -17,4 +18,4 @@ Password again: <br>
 {% endif %}
 <br>
 <br>
-<a href="/">Return to front page</a>
+{% endblock %}

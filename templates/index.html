@@ -1,20 +1,35 @@
-<!DOCTYPE html>
+{% extends "layout.html" %}
+{% block content %}
 <title>Review Site</title>
-<h1>Welcome!</h1>
+<br><h1>Review Site</h1><br>
+<a>
+Welcome to my Review Site. Here you can write a review of anything <br>
+you want and read the reviews other users have already written. You <br>
+can also comment on reviews and reply to comments. And if you see <br>
+something inappropriate, you can report it and the moderators will <br>
+take care of it. <br><br>
+
+To write a review, just click on "Write Review" on the navigation <br>
+bar, give a name to whatever you're reviewing, choose the correct <br>
+type, publishing year, and language for your review, and press <br>
+"Post Review". When searching reviewed works, give a name or <br>
+just a part of it and press "Search". You can also choose filters <br> 
+for your results if you wish. If you don't give a name, you'll get <br> 
+all the results that fit your filters. Under every review you will see <br>
+a "Comments" -section and on top of it a place to leave your <br> 
+own comment if you are logged in. To reply to a comment, click <br> 
+on "Read replies" below the comment you wish to reply to. Click <br>
+"Review Site" on the navigation bar to return to the front page.
+</a><br><br><br>
 {% if session.username %}
-<br>
-<a href="/logout">Log out</a>
-<br>
-<a href="/write">Write Review</a>
-<br>
+You are logged in as {{ session.username }}. Click "Log out" on the <br>
+navigation bar if you wish to log out.
 {% else %}
-<br>
-<a href="/login">Log in</a>
-<br>
+You must log in if you wish to write reviews, comments or replies. To <br>
+log in, click "Log in" on the navigation bar and give your username and <br>
+password. If you don't have an account, click "Create Account" on the <br>
+same page.
 {% endif %}
-<a href="/search">Search</a>
-{% if moderator %}<br>
-<a href="/reports">Check reports</a>
-{% endif %}
+{% endblock %}
 
 
